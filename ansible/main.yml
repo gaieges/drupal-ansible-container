@@ -1,0 +1,69 @@
+# in ansible/main.yml
+
+
+# Install some basic tools on all of our containers so they'll work as
+# ansible targets
+- hosts: all
+  gather_facts: false
+  tasks:
+    - raw: which python || apt-get update
+    - raw: which python || apt-get install -y python python-apt
+
+
+# These are the tasks that get run on our apache hosts at build time
+# To simplify this for your setup, you can use all the techniques you use
+# already, such as including roles, other playbooks, etc.
+- hosts: apache
+  vars:
+    web_root: /var/www/html
+    drupal_path: "{{ web_root }}/drupal-8.1.3"
+
+  tasks:
+    - name: install needed packages for drupal
+      apt:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - php5
+        - git
+        - libapache2-mod-php5
+        - php5-mysql
+        - php5-gd
+
+    - name: create directory for webroot
+      file:
+        state: directory
+        dest: "{{ web_root }}"
+
+    - name: get drupal package
+      unarchive:
+        src: https://ftp.drupal.org/files/projects/drupal-8.1.3.tar.gz
+        copy: no
+        dest: "{{ web_root }}"
+        owner: www-data
+        group: www-data
+
+    - name: copy in default settings file
+      shell: "cp {{ drupal_path }}/sites/default/default.settings.php {{ drupal_path }}/sites/default/settings.php"
+
+    - name: set up settings file with dynamic docker host arg
+      lineinfile:
+        state: present
+        dest: "{{ drupal_path }}/sites/default/settings.php"
+        owner: www-data
+        insertafter: "^ \\$databases = array();"
+        line: >
+          $databases['default']['default'] = array (
+          'database' => 'drupal',
+          'username' => 'drupal',
+          'password' => 'drupal_password',
+          'host' => getenv('MYSQL_PORT_3306_TCP_ADDR'),
+          'port' => '3306',
+          'driver' => 'mysql',
+          'prefix' => '',
+          'collation' => 'utf8mb4_general_ci',
+          );
+
+
+## You'll still need to run the install.php script in drupal to set up the database,
+## but that can be easily automated away too

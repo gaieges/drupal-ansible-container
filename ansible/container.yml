@@ -1,0 +1,27 @@
+# in ansible/containers.yml
+
+version: "2"                       # docker-compose file compatibility version
+services:
+  apache:                          # how our apache container should be configured
+    image: php:5.6-apache          # staring image you want to apply ansible commands to
+    command: apache2-foreground    # container commands are NOT run on build, and
+                                   # if we want them run on run time, they need to be here.
+
+    links:                         # make sure we connect to the mysql container
+      - mysql
+    ports:
+      - "80:80"
+    environment:
+      HTTPD_PREFIX: /usr/local/apache2
+      PATH: ${PATH}:/usr/local/apache2/bin
+
+  mysql:                           # make sure we create a mysql container too
+    image: mysql:5.6
+    command: docker-entrypoint.sh mysqld
+    ports:
+      - "3306"
+    environment:                   # some startup variables on run time
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal_password
