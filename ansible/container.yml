@@ -1,6 +1,6 @@
 # in ansible/containers.yml
 
-version: "2"                       # docker-compose file compatibility version
+version: "1"                       # docker-compose file compatibility version
 services:
   apache:                          # how our apache container should be configured
     image: php:5.6-apache          # staring image you want to apply ansible commands to
