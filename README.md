@@ -2,6 +2,10 @@
 
 > This is intended to be the repo for our [article here](https://tech.napsty.com/2016/06/using-ansible-to-build-and-orchestrate-clean-docker-images.html)
 
+## Intro
+
+This is an example repo to show how to setup and use the great little tool [ansible-container](https://github.com/ansible/ansible-container) to build clean images in your environment.  It's brought to you by the fine folks at [Ansible](http://ansible.com).
+
 ## Getting started
 
 ### With vagrant

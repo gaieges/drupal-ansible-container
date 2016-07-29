@@ -10,7 +10,7 @@ services:
     links:                         # make sure we connect to the mysql container
       - mysql
     ports:
-      - "80:80"
+      - "8080:80"
     environment:
       HTTPD_PREFIX: /usr/local/apache2
       PATH: ${PATH}:/usr/local/apache2/bin
